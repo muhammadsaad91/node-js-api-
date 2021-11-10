@@ -1,91 +1,80 @@
 import express from 'express';
 import morgan from 'morgan';
-import cors from "cors";
+import cors from 'cors';
 
-const app = express()
+const app =express();
+app.use(cors());
+app.use(express.json());
+app.use(morgan('short'));
 
-const Port = process.env.PORT || 3001
+const port = process.env.PORT || 3000;
+let users=[];
 
-
-let users = [];
-
-app.use(cors())
-app.use(express.json())
-app.use(morgan('short'))
-
-app.use((req, res, next) => {
-    console.log("a request came", req.body);
-    next()
+app.use((req,res,next)=>{
+    console.log("req come ",req.body);
+    next();
 })
 
-app.get('/users', (req, res) => {
-    res.send(users)
+// get all record
+app.get('/users',(req,res)=>{
+    res.send(users);
 })
-app.get('/user/:id', (req, res) => {
 
-    if (users[req.params.id]) {
+//get only one record
+app.get('/user/:id',(req,res)=>{
+    if(users[req.params.id]){
         res.send(users[req.params.id])
-    } else {
-        res.send("user not found");
+    }else{
+        res.send('user not found')
     }
-
 })
-app.post('/user', (req, res) => {
 
-    if (!req.body.name || !req.body.email || !req.body.address) {
-        res.status(400).send("invalid data");
-    } else {
+// add record 
+app.post('/user',(req,res)=>{
+    if(!req.body.student_name || !req.body.father_name || !req.body.age || !req.body.roll_no){
+        res.status(400).send('invalid code');
+    }else{
         users.push({
-            name: req.body.name,
-            email: req.body.email,
-            address: req.body.address
+            student_name:req.body.student_name,
+            father_name:req.body.father_name,
+            age:req.body.age,
+            roll_no:req.body.roll_no,
         })
-
-        res.send("users created");
+        res.send("user created");
     }
 })
-app.put('/user/:id', (req, res) => {
 
-    if (users[req.params.id]) {
-
-        if (req.body.name) {
-            users[req.params.id].name = req.body.name
+// add update
+app.put('/user/:id',(req,res)=>{
+    if(users[req.params.id]){
+        if(req.body.student_name){
+            users[req.params.id].student_name = req.body.student_name
         }
-        if (req.body.email) {
-            users[req.params.id].email = req.body.email
+        if(req.body.father_name){
+            users[req.params.id].father_name = req.body.father_name
         }
-        if (req.body.address) {
-            users[req.params.id].address = req.body.address
+        if(req.body.age){
+            users[req.params.id].age = req.body.age
         }
-
+        if(req.body.roll_no){
+            users[req.params.id].roll_no = req.body.roll_no
+        }
         res.send(users[req.params.id])
-
-    } else {
-        res.send("user not found");
-    }
-
-
-
-})
-app.delete('/user/:id', (req, res) => {
-
-    if (users[req.params.id]) {
-
-        users[req.params.id] = {};
-        res.send("user deleted");
-
-    } else {
-        res.send("user not found");
+    }else{
+        res.send('user not found')
     }
 })
 
-app.get('/home', (req, res) => {
-    res.send('here is your home')
-})
-app.get('/', (req, res) => {
-    res.send('Hi I am a hello world Server program')
+
+app.delete('/user/:id',(req,res)=>{
+    if(users[req.params.id]){
+        users[req.params.id] ={};
+        res.send('user deleted');
+    }else{
+        res.send('user not found');
+    }
 })
 
-app.listen(Port, () => {
-    console.log(`Example app listening at http://localhost:${Port}`)
+app.listen(port,()=>{
+    console.log('server is running');
 })
